@@ -4,7 +4,7 @@
 
 TreP 是一个**完全离线**的 Android 密码管理器：密码库以 **PBKDF2 + AES-GCM** 加密后仅存储在本机，不联网、不上传、不依赖任何云端服务，并内置原生 **2FA (TOTP)** 动态验证码。
 
-本项目由网页版 **TreP (The Password Web)** 重构移植而来，**加密数据格式与网页端保持一致**。
+本项目由网页版 [**TreP (The Password Web)**](https://github.com/SHxiaoleya/TrePasswordWeb) 重构移植而来，**加密数据格式与网页端保持一致**。
 
 ---
 
