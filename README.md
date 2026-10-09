@@ -57,13 +57,13 @@ TreP 是一个**完全离线**的 Android 密码管理器：密码库以 **PBKDF
 ```
 TreP/
 ├── app/
-│   ├── build.gradle.kts              # 应用模块构建脚本
-│   ├── proguard-rules.pro            # 混淆规则（保留 kotlinx.serialization 元数据）
+│   ├── build.gradle.kts                  # 应用模块构建脚本
+│   ├── proguard-rules.pro                # 混淆规则（保留 kotlinx.serialization 元数据）
 │   └── src/main/
-│       ├── AndroidManifest.xml
+│       ├── AndroidManifest.xml           # 仅声明 USE_BIOMETRIC，无任何网络权限
 │       ├── java/com/trep/passwordmanager/
-│       │   ├── TrePApplication.kt     # Application，持有全局单例 Repository
-│       │   ├── MainActivity.kt        # 入口 Activity + 页面切换与事件分发
+│       │   ├── TrePApplication.kt         # Application，持有全局单例 Repository
+│       │   ├── MainActivity.kt            # 入口 Activity + 页面切换与事件分发
 │       │   ├── data/
 │       │   │   ├── crypto/
 │       │   │   │   ├── CryptoManager.kt      # PBKDF2 派生 + AES-GCM 加解密
@@ -83,14 +83,26 @@ TreP/
 │       └── res/
 │           ├── values/            # 配色、主题、字符串
 │           ├── values-night/      # 深色主题
+│           ├── drawable/          # 自适应图标前景 / 背景
+│           ├── mipmap-anydpi-v26/ # 自适应图标
 │           └── xml/               # 备份与数据提取规则
 ├── gradle/
-│   ├── libs.versions.toml        # 版本目录（Version Catalog）
-│   └── wrapper/                  # Gradle Wrapper (8.7)
-├── build.gradle.kts              # 根构建脚本
-├── settings.gradle.kts           # 模块声明与仓库配置
-└── gradle.properties             # 全局 Gradle 参数
+│   ├── libs.versions.toml          # 版本目录（Version Catalog）
+│   └── wrapper/
+│       ├── gradle-wrapper.jar        # Wrapper 引导程序（必须提交）
+│       └── gradle-wrapper.properties # 固定 Gradle 8.7
+├── gradlew                         # 构建脚本（Linux / macOS）
+├── gradlew.bat                     # 构建脚本（Windows）
+├── build.gradle.kts                # 根构建脚本
+├── settings.gradle.kts             # 模块声明与仓库配置
+├── gradle.properties               # 全局 Gradle 参数
+├── .gitignore                      # 忽略 build/、.gradle/、.idea/、local.properties 等
+├── .gitattributes                  # 统一换行符（gradlew 固定 LF）
+├── LICENSE                         # MIT 许可证
+└── README.md                       # 本文档
 ```
+
+> 仓库共 **21 个 Kotlin 源文件** 与 **10 个 XML**（含 `AndroidManifest.xml`），克隆后无需任何额外文件即可构建。
 
 ### 架构说明
 
@@ -109,13 +121,15 @@ TOTP 每秒刷新与自动锁定计时；Compose 界面只消费 `VaultUiState` 
 | 构建工具 | Gradle `8.7` + Android Gradle Plugin `8.5.2` |
 | JDK | **17**（`sourceCompatibility` / `jvmTarget` 均为 17） |
 | UI | Jetpack Compose（BOM `2024.09.02`）+ Material 3 + `material-icons-extended` |
-| 导航 | `androidx.navigation:navigation-compose` |
+| 导航 | `androidx.navigation:navigation-compose` `2.8.1` |
 | 异步 | Kotlin Coroutines + `StateFlow` |
 | 序列化 | `kotlinx-serialization-json` `1.7.2` |
+| 生物识别 | `androidx.biometric:biometric` `1.2.0-alpha05`（已预置，入口尚未实现） |
 | 最低版本 | Android 8.0（API 26） |
 | 编译 / 目标版本 | API 35（Android 15） |
 | 应用版本 | `versionCode 1` / `versionName 1.0.0` |
 | 应用 ID | `com.trep.passwordmanager` |
+| 仓库规模 | 21 个 Kotlin 文件 + 10 个 XML + Gradle Wrapper |
 
 ---
 
@@ -135,7 +149,7 @@ TOTP 每秒刷新与自动锁定计时；Compose 界面只消费 `VaultUiState` 
 2. 等待 Gradle Sync 完成（首次会自动下载 Gradle 8.7 发行版与依赖）。
 3. 连接设备或启动模拟器，点击 **Run ▶**。
 
-### 方式二：命令行
+### 方式二：命令行（仓库已内置 Gradle Wrapper）
 
 ```bash
 # macOS / Linux
@@ -147,7 +161,20 @@ gradlew.bat assembleDebug
 
 产物路径：`app/build/outputs/apk/debug/app-debug.apk`
 
-> 若 `gradlew` 缺少可执行权限，执行：`chmod +x gradlew`
+> 若 `gradlew` 缺少可执行权限，执行：`chmod +x gradlew`。
+> 打包 release 需要自行配置签名；`app/release/` 已被 `.gitignore` 忽略，不会误提交。
+
+---
+
+## ❓ 常见问题
+
+| 现象 | 原因与处理 |
+| --- | --- |
+| 同步/构建报 `What went wrong: 25.0.3`，或提示不支持的 class 文件版本 | Gradle 使用的 JDK 是 **Java 25**。AGP 8.5.2 + Gradle 8.7 最高支持 Java 21，请把 Gradle JDK 切到 **17 或 21**（实测 Java 21 可正常构建）。 |
+| 首次 Sync 很慢 | 需要联网下载 Gradle 8.7 发行版与全部依赖，属正常现象；之后走缓存。 |
+| `./gradlew: Permission denied` | 执行 `chmod +x gradlew`（Windows 克隆不受影响）。 |
+| 忘记主密码 | **无法恢复**。密钥只由主密码派生，请自行备份重要账号。 |
+| 换设备后数据没了 | 这是设计使然：`allowBackup=false`，数据不参与云备份与迁移。 |
 
 ---
 
@@ -215,6 +242,7 @@ gradlew.bat assembleDebug
 1. 保持现有分层：加密相关改动必须落在 `data/crypto/`，不要在 Composable 中直接处理密钥。
 2. 若修改加密参数或数据格式，请同步更新本 README 并说明**与网页端的兼容性影响**。
 3. 提交前请确保 `gradlew assembleDebug` 可通过。
+4. 不要提交 `local.properties`、`build/`、`.idea/` 与任何签名文件（`.gitignore` 已默认忽略）。
 
 ---
 

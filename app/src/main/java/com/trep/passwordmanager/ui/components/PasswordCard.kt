@@ -1,5 +1,6 @@
 package com.trep.passwordmanager.ui.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,7 +58,9 @@ fun PasswordCard(
     val formattedDate = dateFormat.format(Date(item.updatedAt))
 
     ElevatedCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(),
         shape = MaterialTheme.shapes.medium
     ) {
         Column(

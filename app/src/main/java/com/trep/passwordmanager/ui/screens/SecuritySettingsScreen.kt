@@ -1,5 +1,6 @@
 package com.trep.passwordmanager.ui.screens
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -126,7 +127,7 @@ fun SecuritySettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Storage Mode Info Card
-            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            ElevatedCard(modifier = Modifier.fillMaxWidth().animateContentSize()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -157,7 +158,7 @@ fun SecuritySettingsScreen(
             }
 
             // Master Password Switch Card
-            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            ElevatedCard(modifier = Modifier.fillMaxWidth().animateContentSize()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -197,7 +198,7 @@ fun SecuritySettingsScreen(
 
             // Auto Lock Timeout Card
             if (uiState.vaultMode == VaultMode.SECURE) {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                ElevatedCard(modifier = Modifier.fillMaxWidth().animateContentSize()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -259,7 +260,7 @@ fun SecuritySettingsScreen(
 
             // Change Master Password Card
             if (uiState.vaultMode == VaultMode.SECURE) {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                ElevatedCard(modifier = Modifier.fillMaxWidth().animateContentSize()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(

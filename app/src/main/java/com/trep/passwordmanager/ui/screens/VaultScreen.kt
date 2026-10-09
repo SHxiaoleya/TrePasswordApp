@@ -266,7 +266,8 @@ fun VaultScreen(
                             onToggleReveal = { onToggleReveal(item.id) },
                             onEdit = { onOpenEdit(item) },
                             onDelete = { itemToDelete = item },
-                            onCopied = onCopied
+                            onCopied = onCopied,
+                            modifier = Modifier.animateItem()
                         )
                     }
                 }

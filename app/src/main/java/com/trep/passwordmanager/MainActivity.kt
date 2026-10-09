@@ -5,8 +5,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -95,7 +100,27 @@ fun MainAppContent(viewModel: VaultViewModel) {
         ) {
             AnimatedContent(
                 targetState = uiState.isUnlocked to currentDestination,
-                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                transitionSpec = {
+                    val wasUnlocked = initialState.first
+                    val isUnlocked = targetState.first
+                    val oldDest = initialState.second
+                    val newDest = targetState.second
+
+                    if (wasUnlocked != isUnlocked) {
+                        // Lock/Unlock transition (fade and slight scale)
+                        (fadeIn(tween(400)) + scaleIn(tween(400), initialScale = 0.95f)) togetherWith
+                                (fadeOut(tween(400)) + scaleOut(tween(400), targetScale = 1.05f))
+                    } else {
+                        // Navigation between Vault and Settings
+                        if (oldDest == CurrentDestination.VAULT && newDest == CurrentDestination.SETTINGS) {
+                            (slideInHorizontally(tween(300)) { it } + fadeIn(tween(300))) togetherWith
+                                    (slideOutHorizontally(tween(300)) { -it / 3 } + fadeOut(tween(300)))
+                        } else {
+                            (slideInHorizontally(tween(300)) { -it } + fadeIn(tween(300))) togetherWith
+                                    (slideOutHorizontally(tween(300)) { it / 3 } + fadeOut(tween(300)))
+                        }
+                    }
+                },
                 label = "screen_transition"
             ) { (isUnlocked, destination) ->
                 if (!isUnlocked) {
